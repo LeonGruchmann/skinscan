@@ -9,13 +9,15 @@ import { useGLTF } from '@react-three/drei'
 
 interface Props {
   /** 'dark' (default) for the dark 3D skin-map panel — translucent teal, glowing wireframe.
-   *  'light' for light backgrounds (the booth) — a solid, opaque slate tone, no wireframe. */
-  variant?: 'dark' | 'light'
+   *  'light' for light backgrounds (the booth) — a solid, opaque slate tone, no wireframe.
+   *  'photo' for the simulated clinical-photo thumbnails — matte skin tone, no wireframe. */
+  variant?: 'dark' | 'light' | 'photo'
 }
 
 const VARIANTS = {
   dark: { skin: '#8fd6dc', opacity: 0.22, wire: '#bdf0f4', wireOpacity: 0.28 },
   light: { skin: '#c7cfd4', opacity: 1, wire: '#5b6b72', wireOpacity: 0 },
+  photo: { skin: '#d8b394', opacity: 1, wire: '#5b6b72', wireOpacity: 0 },
 } as const
 
 const MODEL_URL = `${import.meta.env.BASE_URL}models/basemesh.glb`

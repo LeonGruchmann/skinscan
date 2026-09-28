@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CAPTURED_IMAGES, CAMERAS } from '../lib/mockData'
-import { ClinicalBodyPhoto } from '../components/ClinicalBodyPhoto'
+import { BodyPhotoView } from '../three/BodyPhotoView'
 import { X } from 'lucide-react'
 
 const TOTAL_LESIONS = CAPTURED_IMAGES.reduce((sum, img) => sum + img.lesionCount, 0)
@@ -27,7 +27,7 @@ export function CapturedSection() {
               className="group rounded-xl border border-[var(--border)] bg-[var(--surface)] overflow-hidden text-left hover:shadow-md hover:-translate-y-0.5 transition-all"
             >
               <div className="relative overflow-hidden h-56">
-                <ClinicalBodyPhoto view={img.view} seed={i} className="absolute inset-0" />
+                <BodyPhotoView view={img.view} seed={i} className="absolute inset-0" />
                 {img.lesionCount > 0 && (
                   <div className="absolute inset-0">
                     {Array.from({ length: img.lesionCount }).map((_, i) => (
@@ -78,7 +78,7 @@ export function CapturedSection() {
               </button>
             </div>
             <div className="relative overflow-hidden h-[480px]">
-              <ClinicalBodyPhoto view={open.view} seed={CAPTURED_IMAGES.findIndex((i) => i.id === open.id)} className="absolute inset-0" />
+              <BodyPhotoView view={open.view} seed={CAPTURED_IMAGES.findIndex((i) => i.id === open.id)} className="absolute inset-0" />
               {Array.from({ length: open.lesionCount }).map((_, i) => (
                 <span
                   key={i}
