@@ -24,10 +24,12 @@ const TARGET = new THREE.Vector3(0, 0.92, 0)
 function Scene({ lesions, selectedId, onSelect, controlsRef }: Props & { controlsRef: React.RefObject<OrbitControlsImpl | null> }) {
   return (
     <>
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[2, 3, 2]} intensity={1.1} />
-      <directionalLight position={[-2, 1.5, -2]} intensity={0.35} color="#8fd6dc" />
-      <pointLight position={[0, 1.2, 1.5]} intensity={0.4} color="#ffffff" />
+      <ambientLight intensity={0.45} />
+      <directionalLight position={[2, 3, 2]} intensity={1.05} />
+      <directionalLight position={[-2, 1.5, -2]} intensity={0.3} color="#8fd6dc" />
+      <pointLight position={[0, 1.2, 1.5]} intensity={0.35} color="#ffffff" />
+      {/* soft rim light from behind/above to separate silhouette edges and soften seams between parts */}
+      <directionalLight position={[0, 2.4, -2.4]} intensity={0.4} color="#cdeef2" />
 
       <BodyModel />
       {lesions.map((lesion) => (

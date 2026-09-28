@@ -27,8 +27,53 @@ interface Ring {
   cx?: number
 }
 
+/** Catmull-Rom interpolation through 4 scalar control points at parameter t in [0,1] (p1->p2 segment). */
+function catmullRom(t: number, p0: number, p1: number, p2: number, p3: number): number {
+  const t2 = t * t
+  const t3 = t2 * t
+  return (
+    0.5 *
+    (2 * p1 +
+      (-p0 + p2) * t +
+      (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+      (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+  )
+}
+
+/**
+ * Subdivides a small set of control rings into a dense, smoothly curved set
+ * using Catmull-Rom splines (per-field, on y/rx/rz/cx independently). This is
+ * what turns a "stack of truncated cones" silhouette into a continuous
+ * organic curve — the straight-line lerp between sparse rings is what reads
+ * as boxy/faceted, not the radial segment count.
+ */
+function smoothRings(rings: Ring[], subdivisionsPerSegment = 8): Ring[] {
+  if (rings.length < 3) return rings
+  const n = rings.length
+  const at = (i: number) => rings[THREE.MathUtils.clamp(i, 0, n - 1)]
+  const out: Ring[] = []
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = at(i - 1)
+    const p1 = at(i)
+    const p2 = at(i + 1)
+    const p3 = at(i + 2)
+    const steps = i === n - 2 ? subdivisionsPerSegment + 1 : subdivisionsPerSegment
+    for (let s = 0; s < steps; s++) {
+      const t = s / subdivisionsPerSegment
+      out.push({
+        y: catmullRom(t, p0.y, p1.y, p2.y, p3.y),
+        rx: Math.max(0, catmullRom(t, p0.rx, p1.rx, p2.rx, p3.rx)),
+        rz: Math.max(0, catmullRom(t, p0.rz, p1.rz, p2.rz, p3.rz)),
+        cx: catmullRom(t, p0.cx ?? 0, p1.cx ?? 0, p2.cx ?? 0, p3.cx ?? 0),
+      })
+    }
+  }
+  return out
+}
+
 /** Builds a smooth tube from stacked elliptical rings, capped at both ends. */
-function buildLoftGeometry(rings: Ring[], radialSegments = 28): THREE.BufferGeometry {
+function buildLoftGeometry(inputRings: Ring[], radialSegments = 36): THREE.BufferGeometry {
+  const rings = smoothRings(inputRings)
   const positions: number[] = []
   const indices: number[] = []
   const ringCount = rings.length
