@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { Suspense, useRef, useState } from 'react'
 import { LESIONS } from '../lib/mockData'
-import { HumanFigure } from '../components/HumanFigure'
 import { useAppStore } from '../store/appStore'
+import { SkinMapCanvas, type SkinMapCanvasHandle } from '../three/SkinMapCanvas'
+import { CanvasErrorBoundary } from '../three/CanvasErrorBoundary'
 import { RotateCw, ZoomIn, ZoomOut } from 'lucide-react'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -12,51 +13,32 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function SkinMapSection() {
   const [view, setView] = useState<'front' | 'back'>('back')
-  const [rotation, setRotation] = useState(0)
-  const [zoom, setZoom] = useState(1)
+  const canvasRef = useRef<SkinMapCanvasHandle>(null)
   const selectedId = useAppStore((s) => s.selectedLesionId)
   const setSelectedId = useAppStore((s) => s.setSelectedLesionId)
   const selected = LESIONS.find((l) => l.id === selectedId) ?? null
 
-  const visibleLesions = LESIONS.filter((l) => l.region.view === view)
+  function handleSetView(v: 'front' | 'back') {
+    setView(v)
+    canvasRef.current?.setAzimuthDeg(v === 'front' ? 0 : 180)
+  }
 
   return (
     <div className="grid grid-cols-[1fr_320px] gap-6 h-full grid-fade-in">
       <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[#0e1520] to-[#151d29] flex flex-col overflow-hidden relative">
-        <div className="flex-1 flex items-center justify-center [perspective:1200px]">
-          <div
-            className="relative transition-transform duration-500 ease-out"
-            style={{ transform: `rotateY(${rotation}deg) scale(${zoom})`, transformStyle: 'preserve-3d' }}
-          >
-            <div className="w-[220px] relative">
-              <HumanFigure pose="neutral" className="w-full h-auto" strokeColor="#8fd6dc" fillColor="rgba(14,124,134,0.08)" />
-              {visibleLesions.map((lesion) => (
-                <button
-                  key={lesion.id}
-                  onClick={() => setSelectedId(lesion.id)}
-                  style={{ left: `${lesion.region.x}%`, top: `${lesion.region.y}%` }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                >
-                  <span
-                    className={`block rounded-full border-2 transition-all ${
-                      selectedId === lesion.id
-                        ? 'w-4 h-4 border-white bg-[var(--accent)]'
-                        : lesion.changed
-                          ? 'w-3 h-3 border-[var(--warn)] bg-[var(--warn)] scan-pulse'
-                          : 'w-2.5 h-2.5 border-[#8fd6dc] bg-[#8fd6dc]/70'
-                    }`}
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="flex-1 relative">
+          <CanvasErrorBoundary>
+            <Suspense fallback={null}>
+              <SkinMapCanvas ref={canvasRef} lesions={LESIONS} selectedId={selectedId} onSelect={setSelectedId} />
+            </Suspense>
+          </CanvasErrorBoundary>
         </div>
 
         <div className="absolute top-4 left-4 flex gap-2">
           {(['front', 'back'] as const).map((v) => (
             <button
               key={v}
-              onClick={() => setView(v)}
+              onClick={() => handleSetView(v)}
               className={`px-3 py-1.5 rounded-full text-[11px] font-medium capitalize border ${
                 view === v ? 'bg-white text-[#0e1520] border-white' : 'text-white/70 border-white/25 hover:border-white/50'
               }`}
@@ -68,32 +50,33 @@ export function SkinMapSection() {
 
         <div className="absolute bottom-4 right-4 flex items-center gap-2">
           <button
-            onClick={() => setRotation((r) => r - 45)}
+            onClick={() => canvasRef.current?.rotateBy(-30)}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
           >
             <RotateCw size={14} className="scale-x-[-1]" />
           </button>
           <button
-            onClick={() => setRotation((r) => r + 45)}
+            onClick={() => canvasRef.current?.rotateBy(30)}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
           >
             <RotateCw size={14} />
           </button>
           <button
-            onClick={() => setZoom((z) => Math.max(0.7, z - 0.15))}
+            onClick={() => canvasRef.current?.zoomBy(1.15)}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
           >
             <ZoomOut size={14} />
           </button>
           <button
-            onClick={() => setZoom((z) => Math.min(1.6, z + 0.15))}
+            onClick={() => canvasRef.current?.zoomBy(0.87)}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center"
           >
             <ZoomIn size={14} />
           </button>
         </div>
 
-        <div className="absolute top-4 right-4 text-[11px] text-white/50">Reconstructed from 16 synchronized views</div>
+        <div className="absolute top-4 right-4 text-[11px] text-white/50 pointer-events-none">Reconstructed from 16 synchronized views</div>
+        <div className="absolute bottom-4 left-4 text-[10.5px] text-white/35 pointer-events-none">Drag to orbit · scroll to zoom · click a marker</div>
       </div>
 
       <aside className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5">

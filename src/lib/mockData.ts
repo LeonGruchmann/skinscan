@@ -72,13 +72,43 @@ export interface Lesion {
   status: 'monitoring' | 'review-recommended' | 'stable'
   changed?: boolean
   previousSizeMm?: number
+  /** legacy 2D placement, used by the flat SVG silhouettes elsewhere in the app */
   region: { x: number; y: number; view: 'front' | 'back' }
+  /** position on the reconstructed 3D body model, in model-space meters (y up, z+ = front) */
+  pos3d: [number, number, number]
 }
 
 export const LESIONS: Lesion[] = [
-  { id: 'L-001', label: 'Lesion #001', location: 'Left upper back', sizeMm: 4.2, firstDetected: '12 Mar 2026', status: 'monitoring', region: { x: 38, y: 28, view: 'back' } },
-  { id: 'L-002', label: 'Lesion #002', location: 'Right shoulder', sizeMm: 2.8, firstDetected: '12 Mar 2026', status: 'stable', region: { x: 68, y: 18, view: 'back' } },
-  { id: 'L-014', label: 'Lesion #014', location: 'Left forearm', sizeMm: 3.1, firstDetected: '12 Mar 2026', status: 'stable', region: { x: 22, y: 46, view: 'front' } },
+  {
+    id: 'L-001',
+    label: 'Lesion #001',
+    location: 'Left upper back',
+    sizeMm: 4.2,
+    firstDetected: '12 Mar 2026',
+    status: 'monitoring',
+    region: { x: 38, y: 28, view: 'back' },
+    pos3d: [-0.1, 1.42, -0.13],
+  },
+  {
+    id: 'L-002',
+    label: 'Lesion #002',
+    location: 'Right shoulder',
+    sizeMm: 2.8,
+    firstDetected: '12 Mar 2026',
+    status: 'stable',
+    region: { x: 68, y: 18, view: 'back' },
+    pos3d: [0.22, 1.52, -0.05],
+  },
+  {
+    id: 'L-014',
+    label: 'Lesion #014',
+    location: 'Left forearm',
+    sizeMm: 3.1,
+    firstDetected: '12 Mar 2026',
+    status: 'stable',
+    region: { x: 22, y: 46, view: 'front' },
+    pos3d: [-0.32, 0.95, 0.08],
+  },
   {
     id: 'L-042',
     label: 'Lesion #042',
@@ -89,6 +119,7 @@ export const LESIONS: Lesion[] = [
     status: 'review-recommended',
     changed: true,
     region: { x: 42, y: 24, view: 'back' },
+    pos3d: [-0.08, 1.37, -0.14],
   },
   {
     id: 'L-078',
@@ -100,6 +131,7 @@ export const LESIONS: Lesion[] = [
     status: 'review-recommended',
     changed: true,
     region: { x: 62, y: 52, view: 'back' },
+    pos3d: [0.14, 1.12, -0.13],
   },
   {
     id: 'L-103',
@@ -111,6 +143,7 @@ export const LESIONS: Lesion[] = [
     status: 'review-recommended',
     changed: true,
     region: { x: 40, y: 32, view: 'front' },
+    pos3d: [-0.13, 1.32, 0.14],
   },
 ]
 
