@@ -3,15 +3,17 @@ import { Sidebar } from './components/Sidebar'
 import { TopBar } from './components/TopBar'
 import { useAppStore } from './store/appStore'
 import { OverviewSection } from './sections/OverviewSection'
-import { BoothSection } from './sections/BoothSection'
 import { ScanSection } from './sections/ScanSection'
 import { CapturedSection } from './sections/CapturedSection'
 import { ChangesSection } from './sections/ChangesSection'
 import { ResultsSection } from './sections/ResultsSection'
 
-// Three.js pulls in a large chunk — only load it when the 3D skin map is opened.
+// Three.js pulls in a large chunk — only load it when a 3D section is opened.
 const SkinMapSection = lazy(() =>
   import('./sections/SkinMapSection').then((m) => ({ default: m.SkinMapSection })),
+)
+const BoothSection = lazy(() =>
+  import('./sections/BoothSection').then((m) => ({ default: m.BoothSection })),
 )
 
 function App() {
@@ -24,11 +26,15 @@ function App() {
         <TopBar section={section} />
         <main className="flex-1 min-h-0 p-6">
           {section === 'overview' && <OverviewSection />}
-          {section === 'booth' && <BoothSection />}
+          {section === 'booth' && (
+            <Suspense fallback={<CanvasFallback message="Loading booth…" />}>
+              <BoothSection />
+            </Suspense>
+          )}
           {section === 'scan' && <ScanSection />}
           {section === 'captured' && <CapturedSection />}
           {section === 'skin-map' && (
-            <Suspense fallback={<SkinMapFallback />}>
+            <Suspense fallback={<CanvasFallback message="Loading 3D reconstruction…" />}>
               <SkinMapSection />
             </Suspense>
           )}
@@ -40,10 +46,10 @@ function App() {
   )
 }
 
-function SkinMapFallback() {
+function CanvasFallback({ message }: { message: string }) {
   return (
     <div className="h-full rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[#0e1520] to-[#151d29] flex items-center justify-center">
-      <p className="text-[13px] text-white/50">Loading 3D reconstruction…</p>
+      <p className="text-[13px] text-white/50">{message}</p>
     </div>
   )
 }

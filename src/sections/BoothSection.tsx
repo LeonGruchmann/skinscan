@@ -1,7 +1,9 @@
-import { useMemo } from 'react'
+import { Suspense, useMemo } from 'react'
 import { CAMERAS } from '../lib/mockData'
-import { HumanFigure } from '../components/HumanFigure'
 import { useAppStore } from '../store/appStore'
+import { BoothCanvas } from '../three/BoothCanvas'
+import { CameraViewCanvas } from '../three/CameraViewCanvas'
+import { CanvasErrorBoundary } from '../three/CanvasErrorBoundary'
 import { Camera, Lightbulb, ScanLine } from 'lucide-react'
 
 export function BoothSection() {
@@ -9,83 +11,18 @@ export function BoothSection() {
   const setSelected = useAppStore((s) => s.setSelectedCamera)
   const activeCam = useMemo(() => CAMERAS.find((c) => c.id === selected) ?? null, [selected])
 
-  const radiusX = 220
-  const radiusY = 90
-
   return (
     <div className="grid grid-cols-[1fr_320px] gap-6 h-full grid-fade-in">
       <div className="relative rounded-2xl border border-[var(--border)] bg-gradient-to-b from-white to-[#f2f5f6] overflow-hidden flex flex-col">
-        <div className="flex-1 relative flex items-center justify-center [perspective:1400px]">
-          <div className="relative w-[560px] h-[440px] [transform-style:preserve-3d] [transform:rotateX(18deg)]">
-            {/* floor platform */}
-            <div className="absolute left-1/2 top-[300px] -translate-x-1/2 w-[480px] h-[200px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(14,124,134,0.08),transparent_70%)] border border-[var(--border)]" />
-            <div className="absolute left-1/2 top-[300px] -translate-x-1/2 w-[440px] h-[170px] rounded-full border border-dashed border-[var(--border)]" />
-            <div className="absolute left-1/2 top-[300px] -translate-x-1/2 w-[300px] h-[110px] rounded-full border border-dashed border-[var(--accent)] opacity-40" />
-
-            {/* booth glass frame */}
-            <div className="absolute left-1/2 top-[60px] -translate-x-1/2 w-[420px] h-[330px] rounded-xl border border-[var(--border)] bg-white/20" />
-
-            {/* person */}
-            <div className="absolute left-1/2 top-[110px] -translate-x-1/2 w-[140px] z-10">
-              <HumanFigure pose="neutral" className="w-full h-auto drop-shadow-sm" />
-            </div>
-
-            {/* cameras ring */}
-            {CAMERAS.map((cam) => {
-              const rad = (cam.angleDeg * Math.PI) / 180
-              const x = 280 + radiusX * Math.sin(rad)
-              const y = 240 - (cam.heightPct / 100) * 220 - radiusY * Math.cos(rad) * 0.25
-              const isActive = selected === cam.id
-              return (
-                <button
-                  key={cam.id}
-                  onClick={() => setSelected(isActive ? null : cam.id)}
-                  style={{ left: x, top: y }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 group"
-                >
-                  {isActive && (
-                    <svg
-                      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-                      width="360"
-                      height="240"
-                      style={{ overflow: 'visible' }}
-                    >
-                      <polygon
-                        points={`180,120 ${180 + (280 - x)},${120 + (110 - y) * 0.6} ${180 + (280 - x) * 1.1},${120 + (110 - y) * 0.9}`}
-                        fill="var(--teal-glow)"
-                      />
-                    </svg>
-                  )}
-                  <span
-                    className={`relative flex items-center justify-center w-7 h-7 rounded-md border shadow-sm transition-all ${
-                      isActive
-                        ? 'bg-[var(--accent)] border-[var(--accent-strong)] scale-110'
-                        : 'bg-white border-[var(--border)] group-hover:border-[var(--accent)]'
-                    }`}
-                  >
-                    <Camera size={13} className={isActive ? 'text-white' : 'text-[var(--ink-soft)]'} strokeWidth={2} />
-                  </span>
-                  {cam.id % 3 === 0 && (
-                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--accent)]/50" />
-                  )}
-                </button>
-              )
-            })}
-
-            {/* LED panels between cameras, sparser */}
-            {CAMERAS.filter((c) => c.id % 3 === 1).map((cam) => {
-              const rad = ((cam.angleDeg + 10) * Math.PI) / 180
-              const x = 280 + (radiusX + 20) * Math.sin(rad)
-              const y = 240 - (cam.heightPct / 100) * 220 - radiusY * Math.cos(rad) * 0.25
-              return (
-                <span
-                  key={`led-${cam.id}`}
-                  style={{ left: x, top: y }}
-                  className="absolute -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#fff7dd] border border-[#e8dfb8] shadow-[0_0_6px_2px_rgba(255,247,221,0.8)]"
-                />
-              )
-            })}
-          </div>
+        <div className="flex-1 relative">
+          <CanvasErrorBoundary>
+            <Suspense fallback={null}>
+              <BoothCanvas selectedCamera={selected} onSelect={setSelected} />
+            </Suspense>
+          </CanvasErrorBoundary>
+          <p className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10.5px] text-[var(--ink-faint)] pointer-events-none">
+            Drag to orbit · scroll to zoom · click a camera
+          </p>
         </div>
 
         {/* labels */}
@@ -104,10 +41,14 @@ export function BoothSection() {
             <h3 className="font-display text-[20px] font-semibold text-[var(--ink)]">{activeCam.label}</h3>
             <p className="text-[13px] text-[var(--ink-soft)] mt-1">{activeCam.bodyArea}</p>
 
-            <div className="mt-4 aspect-[4/3] rounded-lg bg-[linear-gradient(135deg,#eef2f3,#e2e8ea)] border border-[var(--border)] flex items-center justify-center overflow-hidden">
-              <HumanFigure pose="neutral" className="w-24 h-auto opacity-60" strokeColor="#94a3ac" />
+            <div className="mt-4 aspect-[4/3] rounded-lg border border-[var(--border)] overflow-hidden">
+              <CanvasErrorBoundary>
+                <Suspense fallback={null}>
+                  <CameraViewCanvas cam={activeCam} />
+                </Suspense>
+              </CanvasErrorBoundary>
             </div>
-            <p className="text-[11px] text-[var(--ink-faint)] mt-1.5">Simulated camera preview</p>
+            <p className="text-[11px] text-[var(--ink-faint)] mt-1.5">Live render from this camera's position</p>
 
             <dl className="mt-5 space-y-2.5 text-[13px]">
               <Row k="Resolution" v={`${activeCam.mp} MP`} />
