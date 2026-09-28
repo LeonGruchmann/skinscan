@@ -92,45 +92,51 @@ function LoftBody({ rings, palette }: { rings: Ring[]; palette: Palette }) {
   )
 }
 
-// Absolute world-space rings (y measured from the floor). Wider (rx) than
-// deep (rz) — a real torso is roughly 1.5-1.7x wider than it is thick.
+// Absolute world-space rings (y measured from the floor), tuned against an
+// 8-angle reference turnaround: broader shoulders (~29% of height across)
+// than the earlier pass had, narrowing at the waist and flaring at the hip.
+// Wider (rx) than deep (rz) — a real torso is roughly 1.5-1.7x wider than
+// it is thick.
 const TORSO_RINGS: Ring[] = [
-  { y: 1.565, rx: 0.075, rz: 0.065 },
-  { y: 1.5, rx: 0.155, rz: 0.095 },
-  { y: 1.42, rx: 0.185, rz: 0.115 },
-  { y: 1.33, rx: 0.165, rz: 0.1 },
-  { y: 1.19, rx: 0.14, rz: 0.088 },
-  { y: 1.1, rx: 0.13, rz: 0.082 },
-  { y: 1.0, rx: 0.15, rz: 0.098 },
-  { y: 0.92, rx: 0.175, rz: 0.115 },
-  { y: 0.87, rx: 0.16, rz: 0.105 },
-  { y: 0.83, rx: 0.085, rz: 0.068 },
+  { y: 1.565, rx: 0.078, rz: 0.066 },
+  { y: 1.5, rx: 0.175, rz: 0.105 },
+  { y: 1.42, rx: 0.205, rz: 0.125 },
+  { y: 1.33, rx: 0.18, rz: 0.108 },
+  { y: 1.19, rx: 0.148, rz: 0.092 },
+  { y: 1.1, rx: 0.136, rz: 0.085 },
+  { y: 1.0, rx: 0.155, rz: 0.1 },
+  { y: 0.92, rx: 0.178, rz: 0.118 },
+  { y: 0.87, rx: 0.162, rz: 0.107 },
+  { y: 0.83, rx: 0.088, rz: 0.07 },
 ]
 
 // Local rings, y=0 at the shoulder pivot, negative toward the wrist.
+// The reference shows fingertips reaching to roughly mid-thigh when the
+// arm hangs — the earlier pass had the arm ending at the waist, visibly
+// too short. Full arm length is now ~43% of total body height.
 const ARM_RINGS: Ring[] = [
-  { y: 0, rx: 0.055, rz: 0.052 },
-  { y: -0.05, rx: 0.05, rz: 0.047 },
-  { y: -0.14, rx: 0.047, rz: 0.043 },
-  { y: -0.24, rx: 0.04, rz: 0.037 },
-  { y: -0.28, rx: 0.036, rz: 0.033 },
-  { y: -0.4, rx: 0.031, rz: 0.029 },
-  { y: -0.5, rx: 0.026, rz: 0.024 },
-  { y: -0.555, rx: 0.021, rz: 0.02 },
+  { y: 0, rx: 0.058, rz: 0.055 },
+  { y: -0.07, rx: 0.053, rz: 0.05 },
+  { y: -0.2, rx: 0.049, rz: 0.045 },
+  { y: -0.335, rx: 0.041, rz: 0.038 },
+  { y: -0.39, rx: 0.037, rz: 0.034 },
+  { y: -0.56, rx: 0.032, rz: 0.029 },
+  { y: -0.7, rx: 0.027, rz: 0.024 },
+  { y: -0.78, rx: 0.021, rz: 0.019 },
 ]
-const ARM_LENGTH = 0.555
+const ARM_LENGTH = 0.78
 
 // Local rings, y=0 at the hip pivot, negative toward the ankle.
 const LEG_RINGS: Ring[] = [
-  { y: 0, rx: 0.1, rz: 0.095 },
-  { y: -0.09, rx: 0.097, rz: 0.09 },
-  { y: -0.22, rx: 0.086, rz: 0.08 },
-  { y: -0.38, rx: 0.067, rz: 0.06 },
-  { y: -0.45, rx: 0.057, rz: 0.05 },
-  { y: -0.52, rx: 0.054, rz: 0.048 },
-  { y: -0.65, rx: 0.049, rz: 0.043 },
-  { y: -0.79, rx: 0.041, rz: 0.035 },
-  { y: -0.88, rx: 0.032, rz: 0.027 },
+  { y: 0, rx: 0.105, rz: 0.1 },
+  { y: -0.09, rx: 0.102, rz: 0.095 },
+  { y: -0.22, rx: 0.09, rz: 0.084 },
+  { y: -0.38, rx: 0.07, rz: 0.063 },
+  { y: -0.45, rx: 0.059, rz: 0.052 },
+  { y: -0.52, rx: 0.056, rz: 0.05 },
+  { y: -0.65, rx: 0.051, rz: 0.045 },
+  { y: -0.79, rx: 0.043, rz: 0.037 },
+  { y: -0.88, rx: 0.033, rz: 0.028 },
 ]
 
 // At full-body scale, individual finger capsules are sub-pixel noise —
@@ -170,7 +176,7 @@ function Foot({ palette }: { palette: Palette }) {
 function Arm({ side, palette }: { side: 'left' | 'right'; palette: Palette }) {
   const sign = side === 'left' ? -1 : 1
   return (
-    <group position={[sign * 0.28, 1.5, 0]} rotation={[0, 0, sign * 0.1]}>
+    <group position={[sign * 0.31, 1.49, 0]} rotation={[0, 0, sign * 0.2]}>
       <LoftBody rings={ARM_RINGS} palette={palette} />
       <group position={[0, -ARM_LENGTH, 0]}>
         <Hand side={side} palette={palette} />
@@ -215,12 +221,12 @@ export function BodyModel({ variant = 'dark' }: Props) {
       </mesh>
 
       {/* shoulder blend — softens the arm/torso junction */}
-      <mesh position={[-0.27, 1.49, 0]} scale={[1, 0.85, 0.9]}>
-        <sphereGeometry args={[0.058, 16, 16]} />
+      <mesh position={[-0.29, 1.49, 0]} scale={[1, 0.85, 0.9]}>
+        <sphereGeometry args={[0.062, 16, 16]} />
         <meshStandardMaterial color={palette.skin} transparent={palette.opacity < 1} opacity={palette.opacity} roughness={0.45} metalness={0.05} />
       </mesh>
-      <mesh position={[0.27, 1.49, 0]} scale={[1, 0.85, 0.9]}>
-        <sphereGeometry args={[0.058, 16, 16]} />
+      <mesh position={[0.29, 1.49, 0]} scale={[1, 0.85, 0.9]}>
+        <sphereGeometry args={[0.062, 16, 16]} />
         <meshStandardMaterial color={palette.skin} transparent={palette.opacity < 1} opacity={palette.opacity} roughness={0.45} metalness={0.05} />
       </mesh>
 
