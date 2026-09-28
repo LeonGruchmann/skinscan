@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.6);
+  --ink: #0b1220;
+  --ink-soft: #5b6472;
+  --ink-faint: #9aa4b2;
+  --border: #e3e7ec;
+  --border-soft: #edf0f3;
+  --accent: #0e7c86;
+  --accent-soft: #0e7c8617;
+  --accent-strong: #0a5f68;
+  --teal-glow: rgba(14, 124, 134, 0.25);
+  --warn: #c2661a;
+  --warn-soft: #c2661a14;
+  --danger: #b5364a;
+  --danger-soft: #b5364a14;
+  --ok: #2f8b5c;
+
+  color-scheme: light;
+  font: 15px/1.5 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+}
+
+::selection {
+  background: var(--teal-glow);
+}
+
+.font-display {
+  font-family: "Inter", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+.grid-fade-in {
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scan-pulse {
+  animation: scanPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes scanPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+/* thin scrollbars for a technical feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
