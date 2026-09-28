@@ -1,17 +1,10 @@
 import { useEffect, useRef } from 'react'
 import { useAppStore } from '../store/appStore'
-import { HumanFigure } from '../components/HumanFigure'
+import { BodyFigureView } from '../three/BodyFigureView'
 import { CAMERAS, POSES } from '../lib/mockData'
 import { Camera, CheckCircle2, Loader2 } from 'lucide-react'
 
 const STAGE_ORDER = ['preparing', 'pose-1', 'pose-2', 'pose-3', 'pose-4', 'complete'] as const
-
-const POSE_TO_FIGURE: Record<string, 'neutral' | 'arms-raised' | 'arms-extended' | 'legs-separated'> = {
-  'pose-1': 'neutral',
-  'pose-2': 'arms-raised',
-  'pose-3': 'arms-extended',
-  'pose-4': 'legs-separated',
-}
 
 export function ScanSection() {
   const scanStage = useAppStore((s) => s.scanStage)
@@ -63,14 +56,15 @@ export function ScanSection() {
   const isRunning = scanStage !== 'idle' && scanStage !== 'complete'
   const isComplete = scanStage === 'complete'
   const currentPose = POSES.find((p) => p.id === scanStage)
-  const figurePose = POSE_TO_FIGURE[scanStage] ?? 'neutral'
 
   return (
     <div className="grid grid-cols-[1fr_340px] gap-6 h-full grid-fade-in">
       <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-b from-white to-[#f2f5f6] flex flex-col overflow-hidden">
         <div className="flex-1 flex items-center justify-center relative">
           <div className="relative w-[220px]">
-            <HumanFigure pose={figurePose} className="w-full h-auto transition-all duration-500" />
+            <div className="aspect-[4/7]">
+              <BodyFigureView className="w-full h-full" />
+            </div>
             {isRunning && (
               <>
                 {CAMERAS.filter((c) => c.id % 2 === 0).map((cam) => {

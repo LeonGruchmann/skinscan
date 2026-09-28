@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { SCANS, CHANGE_SUMMARY, LESIONS } from '../lib/mockData'
 import { useAppStore } from '../store/appStore'
-import { HumanFigure } from '../components/HumanFigure'
+import { BodyFigureView } from '../three/BodyFigureView'
 
 export function ChangesSection() {
   const activeScanIndex = useAppStore((s) => s.activeScanIndex)
@@ -42,7 +42,9 @@ export function ChangesSection() {
         {/* body with highlighted changes */}
         <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-b from-white to-[#f2f5f6] flex items-center justify-center relative">
           <div className="w-[200px] relative">
-            <HumanFigure pose="neutral" className="w-full h-auto" />
+            <div className="aspect-[4/7]">
+              <BodyFigureView className="w-full h-full" />
+            </div>
             {changedLesions.map((l) => (
               <button
                 key={l.id}
@@ -125,7 +127,9 @@ function ScanPanel({ title, date, sizeMm, highlight }: { title: string; date: st
       <p className="text-[11px] uppercase tracking-wide text-[var(--ink-faint)]">{title}</p>
       <p className="text-[12px] text-[var(--ink-soft)] mb-2">{date}</p>
       <div className="aspect-[4/3] rounded-lg bg-[linear-gradient(150deg,#eef2f3,#dbe4e6)] flex items-center justify-center relative">
-        <HumanFigure pose="neutral" className="w-14 h-auto opacity-50" strokeColor="#8fa0a5" />
+        <div className="w-14 aspect-[4/7] opacity-50">
+          <BodyFigureView className="w-full h-full" />
+        </div>
         <span
           className={`absolute w-4 h-4 rounded-full border-2 ${highlight ? 'border-[var(--warn)] bg-[var(--warn)]' : 'border-[var(--ink-faint)] bg-white'}`}
           style={{ left: '46%', top: '40%' }}

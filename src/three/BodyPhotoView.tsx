@@ -8,15 +8,17 @@ type View = CapturedImage['view']
 
 // Fixed camera framing per capture view, in the same world-space
 // conventions as the rest of the 3D scene (BodyModel: feet at y=0, head
-// top ~1.78). Replaces the old flat-SVG per-view scale/x/y/tilt table.
+// top ~1.78). Distance/fov are derived from that range (with margin) rather
+// than eyeballed, so the figure isn't clipped: for a vertical fov f at
+// distance d, the visible vertical extent is 2*d*tan(f/2).
 const FRAMING: Record<View, { position: [number, number, number]; target: [number, number, number]; fov: number }> = {
-  Front: { position: [0, 1.05, 2.5], target: [0, 0.95, 0], fov: 30 },
-  Back: { position: [0, 1.05, -2.5], target: [0, 0.95, 0], fov: 30 },
-  Left: { position: [-2.5, 1.05, 0], target: [0, 0.95, 0], fov: 30 },
-  Right: { position: [2.5, 1.05, 0], target: [0, 0.95, 0], fov: 30 },
-  Upper: { position: [0, 1.55, 1.1], target: [0, 1.5, 0], fov: 38 },
-  Lower: { position: [0, 0.5, 1.1], target: [0, 0.45, 0], fov: 38 },
-  Elevated: { position: [0, 2.1, 2.1], target: [0, 0.9, 0], fov: 34 },
+  Front: { position: [0, 0.89, 3.5], target: [0, 0.89, 0], fov: 32 },
+  Back: { position: [0, 0.89, -3.5], target: [0, 0.89, 0], fov: 32 },
+  Left: { position: [-3.5, 0.89, 0], target: [0, 0.89, 0], fov: 32 },
+  Right: { position: [3.5, 0.89, 0], target: [0, 0.89, 0], fov: 32 },
+  Upper: { position: [0, 1.465, 1.1], target: [0, 1.465, 0], fov: 36 },
+  Lower: { position: [0, 0.3, 1.05], target: [0, 0.3, 0], fov: 36 },
+  Elevated: { position: [0, 1.9, 2.9], target: [0, 0.89, 0], fov: 34 },
 }
 
 interface Props {
@@ -37,7 +39,6 @@ export function BodyPhotoView({ view, seed = 0, className }: Props) {
 
   return (
     <Canvas
-      frameloop="demand"
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: false }}
       className={className}

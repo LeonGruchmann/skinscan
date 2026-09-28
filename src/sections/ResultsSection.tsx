@@ -1,5 +1,5 @@
 import { CHANGE_SUMMARY, LESIONS } from '../lib/mockData'
-import { HumanFigure } from '../components/HumanFigure'
+import { BodyFigureView } from '../three/BodyFigureView'
 import { useAppStore } from '../store/appStore'
 import { CheckCircle2 } from 'lucide-react'
 
@@ -26,7 +26,9 @@ export function ResultsSection() {
       <div className="grid grid-cols-[1fr_320px] gap-6">
         <div className="rounded-2xl border border-[var(--border)] bg-gradient-to-b from-white to-[#f2f5f6] flex items-center justify-center py-8 relative">
           <div className="w-[200px] relative">
-            <HumanFigure pose="neutral" className="w-full h-auto" />
+            <div className="aspect-[4/7]">
+              <BodyFigureView className="w-full h-full" />
+            </div>
             {reviewLesions.map((l) => (
               <button
                 key={l.id}

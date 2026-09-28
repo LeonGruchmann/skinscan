@@ -1,5 +1,5 @@
 import { useAppStore } from '../store/appStore'
-import { HumanFigure } from '../components/HumanFigure'
+import { BodyFigureView } from '../three/BodyFigureView'
 import { Camera, Box, ScanLine, GitCompareArrows, ClipboardCheck } from 'lucide-react'
 
 const STAGES = [
@@ -37,7 +37,9 @@ export function OverviewSection() {
         </div>
 
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center p-6">
-          <HumanFigure pose="neutral" className="w-32 h-auto" />
+          <div className="w-32 aspect-[4/7]">
+            <BodyFigureView className="w-full h-full" />
+          </div>
         </div>
       </div>
 
